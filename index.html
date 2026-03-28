@@ -103,31 +103,36 @@ h3{
 }
 </style>
 </head>
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <body>
 
 <!-- CARTA -->
 <div class="envelope" onclick="abrirCarta()"></div>
 
-<!-- CONTENIDO -->
 <div class="content" id="contenido">
   <h2>🎉 ¡Feliz Cumpleaños Misimiliano!</h2>
-  
-  
-  
-<h3>(Superaste el reto de los 12)</h3>
+  <h3>(Superaste el reto de los 12)</h3>
+
   <audio id="audio">
     <source src="sources/mamabicho.mp3" type="audio/mpeg">
   </audio>
 
-  <button class="btn btn-primary mt-3" onclick="reproducir()">
+  <button id="btnAudio" class="btn btn-primary mt-3" onclick="toggleMusica()">
     ▶ Reproducir
   </button>
+
+  <div class="progress mt-3" style="width:300px; margin:auto; cursor:pointer;">
+    <div id="barra" class="progress-bar bg-primary" style="width:0%"></div>
+  </div>
 
   <div class="cake mt-4" id="cake">🎂</div>
 </div>
 
 <script>
+let audio = document.getElementById("audio");
+let barra = document.getElementById("barra");
+let btnAudio = document.getElementById("btnAudio");
+
 function abrirCarta(){
   document.querySelector('.envelope').classList.add('open');
   setTimeout(()=>{
@@ -136,24 +141,46 @@ function abrirCarta(){
   },500);
 }
 
-function reproducir(){
-  let audio = document.getElementById("audio");
-  audio.play();
+function toggleMusica(){
+  if (audio.paused) {
+    audio.play();
+    btnAudio.innerText = " Pausar";
+    lanzarEfectos(); // Lanza el pastel y fuegos solo al dar play
+  } else {
+    audio.pause();
+    btnAudio.innerText = " Reproducir";
+  }
+}
 
+function lanzarEfectos(){
   // Mostrar pastel
   document.getElementById("cake").classList.add("show-cake");
 
   // Fuegos artificiales
-  for(let i=0;i<20;i++){
+  for(let i=0; i<20; i++){
     let f = document.createElement("div");
     f.classList.add("firework");
     f.style.left = Math.random()*100+"%";
     f.style.top = Math.random()*100+"%";
     document.body.appendChild(f);
-
-    setTimeout(()=>{f.remove();},5000);
+    setTimeout(()=>{ f.remove(); }, 5000);
   }
 }
+
+// Actualizar la barra azul automáticamente
+audio.addEventListener("timeupdate", () => {
+  if (audio.duration) {
+    let progreso = (audio.currentTime / audio.duration) * 100;
+    barra.style.width = progreso + "%";
+  }
+});
+
+// Poder hacer clic en la barra azul para adelantar/atrasar
+document.querySelector(".progress").addEventListener("click", (e) => {
+  let ancho = e.currentTarget.clientWidth;
+  let clickX = e.offsetX;
+  audio.currentTime = (clickX / ancho) * audio.duration;
+});
 </script>
 
 </body>
